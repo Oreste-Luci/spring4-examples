@@ -1,4 +1,4 @@
-package cl.luci.example.spring.sample.mail;
+package cl.luci.example.springboot.mail;
 
 import javax.mail.MessagingException;
 

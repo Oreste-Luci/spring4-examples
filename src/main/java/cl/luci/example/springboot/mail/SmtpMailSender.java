@@ -1,4 +1,4 @@
-package cl.luci.example.spring.sample.mail;
+package cl.luci.example.springboot.mail;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -1,4 +1,4 @@
-package cl.luci.example.spring.sample;
+package cl.luci.example.springboot;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

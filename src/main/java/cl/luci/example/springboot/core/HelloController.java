@@ -1,4 +1,4 @@
-package cl.luci.example.spring.sample.core;
+package cl.luci.example.springboot.core;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.RequestMapping;

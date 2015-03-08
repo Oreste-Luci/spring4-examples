@@ -1,4 +1,4 @@
-package cl.luci.example.spring.sample.mail;
+package cl.luci.example.springboot.mail;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
