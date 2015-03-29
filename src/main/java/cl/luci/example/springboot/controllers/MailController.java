@@ -1,4 +1,4 @@
-package cl.luci.example.springboot.core;
+package cl.luci.example.springboot.controllers;
 
 import cl.luci.example.springboot.mail.MailSender;
 import org.springframework.beans.factory.annotation.Autowired;

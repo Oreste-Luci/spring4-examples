@@ -1,4 +1,4 @@
-package cl.luci.example.springboot.core;
+package cl.luci.example.springboot.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
