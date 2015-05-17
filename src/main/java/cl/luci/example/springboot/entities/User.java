@@ -6,7 +6,9 @@ import javax.persistence.*;
  * @author Oreste Luci
  */
 @Entity
-@Table(name="user_usr")
+@Table(name="user_usr", indexes = {
+        @Index(columnList = "email", unique = true)
+})
 public class User {
 
     public static final int EMAIL_MAX = 250;

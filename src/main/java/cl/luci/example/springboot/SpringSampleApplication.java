@@ -9,6 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.util.Arrays;
 
@@ -16,6 +17,7 @@ import java.util.Arrays;
 @ComponentScan
 @SpringBootApplication
 @EnableAutoConfiguration
+@EnableTransactionManagement
 public class SpringSampleApplication {
 
     public static final Logger logger = LoggerFactory.getLogger(SpringSampleApplication.class);
