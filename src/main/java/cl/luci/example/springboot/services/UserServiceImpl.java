@@ -17,6 +17,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import javax.mail.MessagingException;
 
@@ -50,14 +52,21 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setVerificationCode(RandomStringUtils.randomAlphanumeric(16));
         userRepository.save(user);
 
-        // Sending email
-        String verificationLink = AppUtil.hostURL() + "/users/" + user.getVerificationCode() + "/verify";
-        try {
-            mailSender.send(user.getEmail(),AppUtil.getMessage("verifySubject"),AppUtil.getMessage("verifyEmail",verificationLink));
-            logger.info("Verification email sent to " + user.getEmail());
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
+        // Only executing if transaction committed
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        // Sending email
+                        String verificationLink = AppUtil.hostURL() + "/users/" + user.getVerificationCode() + "/verify";
+                        try {
+                            mailSender.send(user.getEmail(),AppUtil.getMessage("verifySubject"),AppUtil.getMessage("verifyEmail",verificationLink));
+                            logger.info("Verification email sent to " + user.getEmail());
+                        } catch (MessagingException e) {
+                            e.printStackTrace();
+                        }
+                    }
+        });
     }
 
     @Override
