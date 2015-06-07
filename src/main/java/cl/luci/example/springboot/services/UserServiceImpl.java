@@ -3,7 +3,12 @@ package cl.luci.example.springboot.services;
 import cl.luci.example.springboot.dto.SignupForm;
 import cl.luci.example.springboot.dto.UserDetailsImpl;
 import cl.luci.example.springboot.entities.User;
+import cl.luci.example.springboot.mail.MailSender;
 import cl.luci.example.springboot.repositories.UserRepository;
+import cl.luci.example.springboot.utils.AppUtil;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.mail.MessagingException;
+
 /**
  * @author Oreste Luci
  */
@@ -20,11 +27,16 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional(propagation=Propagation.SUPPORTS, readOnly=true)
 public class UserServiceImpl implements UserService, UserDetailsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
+
     @Autowired
     private UserRepository userRepository;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private MailSender mailSender;
 
     @Override
     @Transactional(propagation=Propagation.SUPPORTS, readOnly=false)
@@ -34,8 +46,18 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setEmail(signupForm.getEmail());
         user.setName(signupForm.getName());
         user.setPassword(passwordEncoder.encode(signupForm.getPassword()));
-
+        user.getRoles().add(User.Role.UNVERIFIED);
+        user.setVerificationCode(RandomStringUtils.randomAlphanumeric(16));
         userRepository.save(user);
+
+        // Sending email
+        String verificationLink = AppUtil.hostURL() + "/users/" + user.getVerificationCode() + "/verify";
+        try {
+            mailSender.send(user.getEmail(),AppUtil.getMessage("verifySubject"),AppUtil.getMessage("verifyEmail",verificationLink));
+            logger.info("Verification email sent to " + user.getEmail());
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

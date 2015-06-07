@@ -1,6 +1,8 @@
 package cl.luci.example.springboot.entities;
 
 import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author Oreste Luci
@@ -14,6 +16,10 @@ public class User {
     public static final int EMAIL_MAX = 250;
     public static final int NAME_MAX = 50;
 
+    public static enum Role {
+        UNVERIFIED, BLOCKED, ADMIN
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -26,6 +32,28 @@ public class User {
 
     @Column(nullable = false)
     private String password;
+
+    @Column(length = 16)
+    private String verificationCode;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<Role> roles = new HashSet<Role>();
+
+    public String getVerificationCode() {
+        return verificationCode;
+    }
+
+    public void setVerificationCode(String verificationCode) {
+        this.verificationCode = verificationCode;
+    }
+
+    public Set<Role> getRoles() {
+        return roles;
+    }
+
+    public void setRoles(Set<Role> roles) {
+        this.roles = roles;
+    }
 
     public long getId() {
         return id;
