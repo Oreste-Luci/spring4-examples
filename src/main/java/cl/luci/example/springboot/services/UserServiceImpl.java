@@ -70,6 +70,23 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = false)
+    public void verify(String verificationCode) {
+
+        // User should be logged in. See WebSecurityConfig
+        long loggedInUserId = AppUtil.getSessionUser().getId();
+        User user = userRepository.findOne(loggedInUserId);
+
+        AppUtil.validate(user.getRoles().contains(User.Role.UNVERIFIED),"alreadyVerified");
+
+        AppUtil.validate(user.getVerificationCode().equals(verificationCode),"incorrect","verification code");
+
+        user.getRoles().remove(User.Role.UNVERIFIED);
+        user.setVerificationCode(null);
+        userRepository.save(user);
+    }
+
+    @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(username);

@@ -8,4 +8,6 @@ import cl.luci.example.springboot.dto.SignupForm;
 public interface UserService {
 
     public abstract void signup(SignupForm signupForm);
+
+    public abstract void verify(String verificationCode);
 }
