@@ -135,6 +135,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         userRepository.save(user);
     }
 
+    @Override
+    public User findOne(long userId) {
+
+        User loggedIn = AppUtil.getSessionUser();
+        User user = userRepository.findOne(userId);
+
+        if (loggedIn == null || (loggedIn.getId() != user.getId() && !loggedIn.isAdmin())) {
+
+            // Hide email
+            user.setEmail("Confidential");
+        }
+
+        return user;
+
+    }
+
     private void mailForgotPasswordLink(User user) throws MessagingException {
 
         String forgotPasswordLink = AppUtil.hostUrl() + "/reset-password/" + user.getForgotPasswordCode();

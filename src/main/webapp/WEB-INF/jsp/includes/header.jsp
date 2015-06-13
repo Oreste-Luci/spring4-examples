@@ -10,16 +10,16 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Spring Boot Example</title>
+    <title>Up and running with Spring Framework quickly</title>
 
     <!-- Bootstrap -->
     <link href="/public/lib/bootstrap-3.1.1/css/bootstrap.min.css" rel="stylesheet">
 
+    <!-- Our CSS -->
     <link href="/public/css/styles.css" rel="stylesheet">
 
 </head>
 <body>
-
 <div class="container">
 
     <nav class="navbar navbar-default" role="navigation">
@@ -32,7 +32,7 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="<c:url value="/"/>">Brand</a>
+                <a class="navbar-brand" href="#">Brand</a>
             </div>
 
             <!-- Collect the nav links, forms, and other content for toggling -->
@@ -61,11 +61,13 @@
                 </form>
                 <ul class="nav navbar-nav navbar-right">
                     <sec:authorize access="isAnonymous()">
-                        <li><a href="<c:url value="/signup"/>"><span class="glyphicon glyphicon-user"></span>&nbsp;Sign up</a></li>
+
+                        <li><a href="<c:url value='/signup' />"><span class="glyphicon glyphicon-list-alt"></span> Sign up</a></li>
                         <li>
                             <a href="/login">Sign in <span class="glyphicon glyphicon-log-in"></span></a>
                         </li>
                     </sec:authorize>
+
                     <sec:authorize access="isAuthenticated()">
                         <li class="dropdown">
                             <a href="#" class="dropdown-toggle" data-toggle="dropdown">
@@ -83,32 +85,22 @@
                             </ul>
                         </li>
                     </sec:authorize>
-
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Dropdown <b class="caret"></b></a>
-                        <ul class="dropdown-menu">
-                            <li><a href="#">Action</a></li>
-                            <li><a href="#">Another action</a></li>
-                            <li><a href="#">Something else here</a></li>
-                            <li class="divider"></li>
-                            <li><a href="#">Separated link</a></li>
-                        </ul>
-                    </li>
                 </ul>
             </div><!-- /.navbar-collapse -->
         </div><!-- /.container-fluid -->
     </nav>
 
     <sec:authorize access="hasRole('ROLE_UNVERIFIED')">
-        <div class="alert alert-warning alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-            Your email id is unverified. <a href="/users/resend-verification-email">Click here</a> to get the verification mail again.
-        </div>
+    <div class="alert alert-warning alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+        Your email id is unverified. <a href="/users/resend-verification-mail">Click here</a> to get the verification mail again.
+    </div>
     </sec:authorize>
 
     <c:if test="${not empty flashMessage}">
-        <div class="alert alert-${flashKind} alert-dismissable">
-            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+    <div class="alert alert-${flashKind} alert-dismissable">
+        <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
             ${flashMessage}
-        </div>
+    </div>
     </c:if>
+	

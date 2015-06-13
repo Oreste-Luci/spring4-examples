@@ -1,5 +1,7 @@
 package cl.luci.example.springboot.entities;
 
+import cl.luci.example.springboot.utils.AppUtil;
+
 import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Set;
@@ -25,28 +27,24 @@ public class User {
     }
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private long id;
 
-    // Unique email
     @Column(nullable = false, length = EMAIL_MAX)
     private String email;
 
     @Column(nullable = false, length = NAME_MAX)
     private String name;
 
+    // no length because it will be encrypted
     @Column(nullable = false)
     private String password;
 
     @Column(length = 16)
     private String verificationCode;
 
-    // Unique code
     @Column(length = RANDOM_CODE_LENGTH)
     private String forgotPasswordCode;
-
-    @ElementCollection(fetch = FetchType.EAGER)
-    private Set<Role> roles = new HashSet<Role>();
 
     public String getForgotPasswordCode() {
         return forgotPasswordCode;
@@ -63,6 +61,9 @@ public class User {
     public void setVerificationCode(String verificationCode) {
         this.verificationCode = verificationCode;
     }
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    private Set<Role> roles = new HashSet<Role>();
 
     public Set<Role> getRoles() {
         return roles;
@@ -103,4 +104,17 @@ public class User {
     public void setPassword(String password) {
         this.password = password;
     }
+
+    public boolean isAdmin() {
+        return roles.contains(Role.ADMIN);
+    }
+
+    public boolean isEditable() {
+        User loggedIn = AppUtil.getSessionUser();
+        if (loggedIn == null)
+            return false;
+        return loggedIn.isAdmin() ||   // ADMIN or
+                loggedIn.getId() == id; // self can edit
+    }
+
 }
