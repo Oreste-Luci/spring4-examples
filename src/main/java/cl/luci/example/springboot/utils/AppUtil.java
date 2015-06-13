@@ -75,4 +75,9 @@ public class AppUtil {
             throw new RuntimeException(getMessage(msgContent,args));
         }
     }
+
+    public static String hostUrl() {
+        return (isDev() ? "http://" : "https://") + hostAndPort;
+    }
+
 }

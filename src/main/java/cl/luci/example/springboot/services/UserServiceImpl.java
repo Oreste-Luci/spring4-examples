@@ -1,5 +1,7 @@
 package cl.luci.example.springboot.services;
 
+import cl.luci.example.springboot.dto.ForgotPasswordForm;
+import cl.luci.example.springboot.dto.ResetPasswordForm;
 import cl.luci.example.springboot.dto.SignupForm;
 import cl.luci.example.springboot.dto.UserDetailsImpl;
 import cl.luci.example.springboot.entities.User;
@@ -7,6 +9,7 @@ import cl.luci.example.springboot.mail.MailSender;
 import cl.luci.example.springboot.repositories.UserRepository;
 import cl.luci.example.springboot.utils.AppUtil;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.validation.BindingResult;
 
 import javax.mail.MessagingException;
 
@@ -84,6 +88,60 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.getRoles().remove(User.Role.UNVERIFIED);
         user.setVerificationCode(null);
         userRepository.save(user);
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+    public void forgotPassword(ForgotPasswordForm form) {
+
+        final User user = userRepository.findByEmail(form.getEmail());
+        final String forgotPasswordCode = RandomStringUtils.randomAlphanumeric(User.RANDOM_CODE_LENGTH);
+
+        user.setForgotPasswordCode(forgotPasswordCode);
+        final User savedUser = userRepository.save(user);
+
+        // Only send email if transaction successful
+        TransactionSynchronizationManager.registerSynchronization(
+                new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        try {
+                            mailForgotPasswordLink(savedUser);
+                        } catch (MessagingException e) {
+                            logger.error(ExceptionUtils.getStackTrace(e));
+                        }
+                    }
+
+                });
+
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+    public void resetPassword(String forgotPasswordCode,
+                              ResetPasswordForm resetPasswordForm,
+                              BindingResult result) {
+
+        User user = userRepository.findByForgotPasswordCode(forgotPasswordCode);
+
+        if (user == null)
+            result.reject("invalidForgotPassword");
+
+        if (result.hasErrors())
+            return;
+
+        user.setForgotPasswordCode(null);
+        user.setPassword(passwordEncoder.encode(resetPasswordForm.getPassword().trim()));
+        userRepository.save(user);
+    }
+
+    private void mailForgotPasswordLink(User user) throws MessagingException {
+
+        String forgotPasswordLink = AppUtil.hostUrl() + "/reset-password/" + user.getForgotPasswordCode();
+        mailSender.send(user.getEmail(),
+                AppUtil.getMessage("forgotPasswordSubject"),
+                AppUtil.getMessage("forgotPasswordEmail", forgotPasswordLink));
+
     }
 
     @Override

@@ -25,5 +25,4 @@ public class RootController {
 
         return "Directly from controller!!";
     }
-
 }
