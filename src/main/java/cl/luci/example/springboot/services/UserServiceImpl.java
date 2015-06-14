@@ -1,9 +1,6 @@
 package cl.luci.example.springboot.services;
 
-import cl.luci.example.springboot.dto.ForgotPasswordForm;
-import cl.luci.example.springboot.dto.ResetPasswordForm;
-import cl.luci.example.springboot.dto.SignupForm;
-import cl.luci.example.springboot.dto.UserDetailsImpl;
+import cl.luci.example.springboot.dto.*;
 import cl.luci.example.springboot.entities.User;
 import cl.luci.example.springboot.mail.MailSender;
 import cl.luci.example.springboot.repositories.UserRepository;
@@ -149,6 +146,19 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         return user;
 
+    }
+
+    @Override
+    @Transactional(propagation=Propagation.REQUIRED, readOnly=false)
+    public void update(long userId, UserEditForm userEditForm) {
+
+        User loggedIn = AppUtil.getSessionUser();
+        AppUtil.validate(loggedIn.isAdmin() || loggedIn.getId() == userId, "noPermissions");
+        User user = userRepository.findOne(userId);
+        user.setName(userEditForm.getName());
+        if (loggedIn.isAdmin())
+            user.setRoles(userEditForm.getRoles());
+        userRepository.save(user);
     }
 
     private void mailForgotPasswordLink(User user) throws MessagingException {
